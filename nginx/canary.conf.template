@@ -1,0 +1,37 @@
+upstream api_stable {
+    server api_v1:8000;
+}
+
+upstream api_canary {
+    server api_v2:8000;
+}
+
+map $http_x_canary $canary_override {
+    default "";
+    "always" "api_canary";
+    "never" "api_stable";
+}
+
+split_clients "${remote_addr}${request_id}" $canary_split {
+    ${CANARY_PERCENT}% "api_canary";
+    * "api_stable";
+}
+
+map $canary_override $backend {
+    default $canary_split;
+    "api_canary" "api_canary";
+    "api_stable" "api_stable";
+}
+
+server {
+    listen 80;
+
+    resolver 127.0.0.11 valid=10s;
+
+    location / {
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Canary-Target $backend;
+        proxy_pass http://$backend;
+    }
+}
