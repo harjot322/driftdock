@@ -1,5 +1,5 @@
 # DriftDock
-
+# Updated by Harjot on 13 June
 A local-first DevOps lab that simulates real release engineering: blue/green + canary routing, queue-based workloads, chaos drills, and point-in-time backups. No cloud required. Optional AWS free-tier Terraform is included but never needed to run locally.
 
 ## What makes this different
